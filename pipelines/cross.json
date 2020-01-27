@@ -8,7 +8,7 @@
     "image": "egsmartin/clasifica:latest"
   },
   "input": {
-	"cross": [{
+	"union": [{
 		"pfs": {
 		  "repo": "edades",
 		  "glob": "/*"
@@ -18,7 +18,6 @@
 		"pfs": {
 		  "repo": "profesion",
 		  "glob": "/*"
-		  }
 		}
 	}]
   }

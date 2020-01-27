@@ -18,7 +18,6 @@
 		"pfs": {
 		  "repo": "profesion",
 		  "glob": "/*"
-		  }
 		}
 	}]
   }
