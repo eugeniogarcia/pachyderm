@@ -5,7 +5,7 @@
   "description": "Pipeline que muestra el efecto de usar cross",
   "transform": {
     "cmd": [ "dotnet", "/app/clasifica.dll","5","/pfs","/pfs/out" ],
-    "image": "egsmartin/clasifica:2"
+    "image": "egsmartin/clasifica:3"
   },
   "input": {
 	"cross": [{

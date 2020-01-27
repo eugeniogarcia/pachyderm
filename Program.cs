@@ -60,9 +60,18 @@ namespace clasifica
                     case "5":
                         Console.WriteLine("Listado");
                         salida = File.CreateText(args[2] + "/Listado" + System.DateTime.Now.Ticks.ToString() + ".txt");
+                        foreach (String directorio in Directory.GetDirectories(args[1]))
+                        {
+                            salida.WriteLine("directorio: "+ directorio);
+                            foreach (String archivo1 in Directory.GetFiles(directorio))
+                            {
+                                salida.WriteLine("archivo: " + archivo1);
+                            }
+                        }
                         foreach (String archivo in Directory.GetFiles(args[1]))
                         {
-                            salida.WriteLine(archivo);
+                            salida.WriteLine("raiz");
+                            salida.WriteLine("archivo: "+archivo);
                         }
                         salida.Close();
                         break;
