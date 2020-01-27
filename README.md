@@ -287,6 +287,12 @@ personas master 6072a48c189d4573b1a42526c9a8c712 34 seconds ago 63.59KiB -
 ```
 
 ```sh
+pachctl put file personas@master:Personas1.txt -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/data/personas/Personas1.txt
+pachctl put file personas@master:Personas2.txt -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/data/personas/Personas2.txt
+pachctl put file personas@master:Personas3.txt -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/data/personas/Personas3.txt
+```
+
+```sh
 pachctl list file personas@master
 
 NAME           TYPE SIZE
@@ -306,7 +312,23 @@ pachctl get file personas@master:Personas1.txt
 
 ```sh
 pachctl create pipeline -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/pipelines/edades.json
+pachctl create pipeline -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/pipelines/edades-agrega.json
+pachctl create pipeline -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/pipelines/profesion.json
+pachctl create pipeline -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/pipelines/profesion-agrega.json
 ```
+
+```sh
+pachctl delete pipeline profesion-agrega
+pachctl delete pipeline edades-agrega
+pachctl delete pipeline profesion
+pachctl delete pipeline edades
+pachctl delete repo personas
+```
+
+overwrite 
+recursivo
+
+
 
 ```sh
 pachctl list job

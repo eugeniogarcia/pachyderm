@@ -11,7 +11,7 @@
   "input": {
     "pfs": {
       "repo": "personas",
-      "glob": "/*"
+      "glob": "/"
     }
   }
 }
