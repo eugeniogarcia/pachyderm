@@ -15,7 +15,7 @@ namespace clasifica
                 {
                     Console.WriteLine("Argumentos incorrectos");
                     Console.WriteLine("clasifica [operacion] [directorio entrada] [directorio de salida]");
-                    Console.WriteLine("Con operacion tomando el valor 1, 2, 3 o 4");
+                    Console.WriteLine("Con operacion tomando el valor 1, 2, 3, 4 o 5");
                     System.Environment.Exit(-1);
                 }
                 StreamWriter salida;
@@ -59,17 +59,8 @@ namespace clasifica
                         break;
                     case "5":
                         Console.WriteLine("Listado");
-                        if (args.Length < 4)
-                        {
-                            Console.WriteLine("Argumentos incorrectos");
-                            Console.WriteLine("clasifica 5 [directorio entrada 1] [directorio entrada 2] [directorio de salida]"); System.Environment.Exit(-1);
-                        }
-                        salida = File.CreateText(args[3] + "/Listado" + System.DateTime.Now.Ticks.ToString() + ".txt");
+                        salida = File.CreateText(args[2] + "/Listado" + System.DateTime.Now.Ticks.ToString() + ".txt");
                         foreach (String archivo in Directory.GetFiles(args[1]))
-                        {
-                            salida.WriteLine(archivo);
-                        }
-                        foreach (String archivo in Directory.GetFiles(args[2]))
                         {
                             salida.WriteLine(archivo);
                         }

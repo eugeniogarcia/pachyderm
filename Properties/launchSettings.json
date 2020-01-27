@@ -2,7 +2,7 @@
   "profiles": {
     "clasifica": {
       "commandName": "Project",
-      "commandLineArgs": "1 c:/tmp/personas c:/tmp/salida "
+      "commandLineArgs": "5 c:/tmp/ c:/tmp/"
     }
   }
 }
