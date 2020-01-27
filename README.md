@@ -233,17 +233,99 @@ latest: digest: sha256:82dbe8c29d11c97bc44ab90ece3a5d29b1e07244ddd68e01addff7545
 ```
 
 
-## Create the pipeline
 
 ## Create the cluster
 
+We log in the [Paychderm hub](https://hub.pachyderm.com/clusters) and create a cluster.
+
+We open a linux session as `su`. Then we click connect to fid out the connection details. In my case:
+
+```sh
+echo '{"pachd_address": "grpcs://grpc-hub-c0-drn6jasbh2.clusters.pachyderm.io:31400", "source": 2}' | pachctl config set context edades-7lq7ra3t96 && pachctl config set active-context edades-7lq7ra3t96
+```
+
+```sh
+pachctl auth login --one-time-password
+```
+
+With the one time password as:
+
+```sh
+otp/b10b8a9162e54018b090afea9afb17d6
+```
+
 ## Upload the data
-
+```sh
 pachctl create repo personas
-pachctl list repo
-pachctl put file images@master:Personas1.txt -f https://github.com/eugeniogarcia/pachyderm/blob/master/data/personas/Personas1.txt
-pachctl put file images@master:Personas2.txt -f https://github.com/eugeniogarcia/pachyderm/blob/master/data/personas/Personas2.txt
-pachctl put file images@master:Personas3.txt -f https://github.com/eugeniogarcia/pachyderm/blob/master/data/personas/Personas3.txt
 
+pachctl list repo
+
+NAME     CREATED        SIZE (MASTER) ACCESS LEVEL
+personas 11 seconds ago 0B            OWNER
+```
+
+```sh
+pachctl put file personas@master:Personas1.txt -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/data/personas/Personas1.txt
+pachctl put file personas@master:Personas2.txt -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/data/personas/Personas2.txt
+pachctl put file personas@master:Personas3.txt -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/data/personas/Personas3.txt
+```
+
+```sh
+pachctl list repo
+
+NAME     CREATED        SIZE (MASTER) ACCESS LEVEL
+personas 49 seconds ago 190.8KiB      OWNER
+```
+
+```sh
+pachctl list commit personas
+
+REPO     BRANCH COMMIT                           FINISHED       SIZE     PROGRESS DESCRIPTION
+personas master e20f0934729f47508420e3539c30b6cb 17 seconds ago 190.8KiB -      
+personas master 0a280660e7244e24b8319559124b9cdf 24 seconds ago 127.2KiB -      
+personas master 6072a48c189d4573b1a42526c9a8c712 34 seconds ago 63.59KiB -
+```
+
+```sh
+pachctl list file personas@master
+
+NAME           TYPE SIZE
+/Personas1.txt file 63.59KiB
+/Personas2.txt file 63.58KiB
+/Personas3.txt file 63.6KiB
+```
+
+```sh
+pachctl get file personas@master:Personas1.txt
+
+1;Eugenio;Garcia San Martin;V;1969;P;San Pedro Bercianos
+2;Vera Carmen;Zach;H;1973;M;Salzburg
+```
+
+## Create the pipeline
+
+```sh
+pachctl create pipeline -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/pipelines/edades.json
+```
+
+```sh
+pachctl list job
+```
+
+```sh
+pachctl list repo
+```
+
+```sh
+pachctl list commit edades
+```
+
+```sh
+pachctl list file edades@master
+```
+
+```sh
+pachctl get file edades@master:Persona1.txt
+```
 
 
