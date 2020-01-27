@@ -1,8 +1,8 @@
 {
   "pipeline": {
-    "name": "cross"
+    "name": "union"
   },
-  "description": "Pipeline que muestra el efecto de usar cross",
+  "description": "Pipeline que muestra el efecto de usar union",
   "transform": {
     "cmd": [ "dotnet", "/app/clasifica.dll","5","/pfs/edades","/pfs/profesion","/pfs/out" ],
     "image": "egsmartin/clasifica:latest"
@@ -12,10 +12,13 @@
 		"pfs": {
 		  "repo": "edades",
 		  "glob": "/*"
+		  }
 		},
+		{
 		"pfs": {
 		  "repo": "profesion",
 		  "glob": "/*"
+		  }
 		}
 	}]
   }

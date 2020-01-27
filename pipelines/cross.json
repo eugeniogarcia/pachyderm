@@ -12,10 +12,13 @@
 		"pfs": {
 		  "repo": "edades",
 		  "glob": "/*"
+		  }
 		},
+		{
 		"pfs": {
 		  "repo": "profesion",
 		  "glob": "/*"
+		  }
 		}
 	}]
   }
