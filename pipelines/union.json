@@ -5,7 +5,7 @@
   "description": "Pipeline que muestra el efecto de usar union",
   "transform": {
     "cmd": [ "dotnet", "/app/clasifica.dll","5","/pfs","/pfs/out" ],
-    "image": "egsmartin/clasifica:3"
+    "image": "egsmartin/clasifica:latest"
   },
   "input": {
 	"union": [{
