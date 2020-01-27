@@ -318,6 +318,47 @@ pachctl create pipeline -f https://raw.githubusercontent.com/eugeniogarcia/pachy
 ```
 
 ```sh
+pachctl list repo
+
+NAME             CREATED            SIZE (MASTER) ACCESS LEVEL
+profesion-agrega About a minute ago 180B          OWNER        Output repo for pipeline profesion-agrega.
+profesion        About a minute ago 180B          OWNER        Output repo for pipeline profesion.
+edades-agrega    2 minutes ago      277B          OWNER        Output repo for pipeline edades-agrega.
+edades           2 minutes ago      277B          OWNER        Output repo for pipeline edades.
+personas         3 minutes ago      260B          OWNER
+```
+
+```sh
+pachctl list file edades@master
+
+NAME               TYPE SIZE
+/EdadPersonas1.txt file 101B
+/EdadPersonas2.txt file 86B
+/EdadPersonas3.txt file 90B
+```
+
+```sh
+pachctl list file edades-agrega@master
+
+NAME                                TYPE SIZE
+/EdadPersonas637157472648055685.txt file 277B
+```
+
+```sh
+pachctl get file edades-agrega@master:EdadPersonas637157472648055685.txt
+
+3;Eugenio;Garcia Zach;V;2004;H;Madrid;15
+4;Clara;Garcia Zach;H;2006;H;Torrelodones;13
+1;Eugenio;Garcia San Martin;V;1969;P;San Pedro Bercianos;50
+2;Vera Carmen;Zach;H;1973;M;Salzburgo;46
+5;Leah;Garcia Zach;H;2008;H;Torrelodones;11
+6;Nicolas;Garcia Zach;V;2011;H;Torrelodones;8
+```
+
+efecto /* y /
+
+orden segun dependencias
+```sh
 pachctl delete pipeline profesion-agrega
 pachctl delete pipeline edades-agrega
 pachctl delete pipeline profesion
@@ -325,29 +366,44 @@ pachctl delete pipeline edades
 pachctl delete repo personas
 ```
 
-overwrite 
-recursivo
-
-
+overwrite
 
 ```sh
-pachctl list job
+pachctl put file personas@master:Personas1.txt -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/data/personas/Personas1.txt
+
+pachctl get file personas@master:Personas1.txt
+
+1;Eugenio;Garcia San Martin;V;1969;P;San Pedro Bercianos
+2;Vera Carmen;Zach;H;1973;M;Salzburgo
+1;Eugenio;Garcia San Martin;V;1969;P;San Pedro Bercianos
+2;Vera Carmen;Zach;H;1973;M;Salzburgo
 ```
+
+```sh
+pachctl put file personas@master:Personas2.txt -o -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/data/personas/Personas2.txt
+
+pachctl get file personas@master:Personas2.txt
+
+3;Eugenio;Garcia Zach;V;2004;H;Madrid
+4;Clara;Garcia Zach;H;2006;H;Torrelodones
+```
+ 
+significado de +, DL y UL
 
 ```sh
 pachctl list repo
+
+ID                               PIPELINE         STARTED       DURATION  RESTART PROGRESS  DL   UL   STATE
+df610e990cc940568a5ae4bc4f44bea1 profesion        2 minutes ago 1 second  0       0 + 3 / 3 0B   0B   success
+ecc913b1d9914d03a78e64fdb3777238 profesion-agrega 2 minutes ago 1 second  0       0 + 1 / 1 0B   0B   success
+48a18e495ba94feeaeb7687c0797cbfa edades-agrega    2 minutes ago 1 second  0       0 + 1 / 1 0B   0B   success
+b86bfa791edf443891e7fad28d7ac676 edades           2 minutes ago 1 second  0       0 + 3 / 3 0B   0B   success
+60ad7bc9892d4cb5b4ecd288ee6b0e94 profesion        2 minutes ago 3 seconds 0       1 + 2 / 3 202B 138B success
+fe5e0275b5ca42be8032c3e96b62c05c profesion-agrega 2 minutes ago 3 seconds 0       1 + 0 / 1 378B 249B success
+193164fc4f484a01a4addd765d350149 edades-agrega    2 minutes ago 3 seconds 0       1 + 0 / 1 355B 378B success
+3f2442c12b994482a7b60f790b17317f edades           2 minutes ago 3 seconds 0       1 + 2 / 3 190B 202B success
+0aee8308ee8742c1a410d091baae06c7 profesion-agrega 8 minutes ago 2 seconds 0       1 + 0 / 1 277B 180B success
+087c55214016422b92c960ecec22beb7 profesion        8 minutes ago 7 seconds 0       3 + 0 / 3 277B 180B success
+f8e439820df14c54bc0aad8094f50bd0 edades-agrega    8 minutes ago 3 seconds 0       1 + 0 / 1 260B 277B success
+2a491e3d52ec4783bf91229b0a4d8eaf edades           8 minutes ago 5 seconds 0       3 + 0 / 3 260B 277B success
 ```
-
-```sh
-pachctl list commit edades
-```
-
-```sh
-pachctl list file edades@master
-```
-
-```sh
-pachctl get file edades@master:Persona1.txt
-```
-
-
