@@ -239,5 +239,11 @@ latest: digest: sha256:82dbe8c29d11c97bc44ab90ece3a5d29b1e07244ddd68e01addff7545
 
 ## Upload the data
 
-## Trigger
+pachctl create repo personas
+pachctl list repo
+pachctl put file images@master:Personas1.txt -f https://github.com/eugeniogarcia/pachyderm/blob/master/data/personas/Personas1.txt
+pachctl put file images@master:Personas2.txt -f https://github.com/eugeniogarcia/pachyderm/blob/master/data/personas/Personas2.txt
+pachctl put file images@master:Personas3.txt -f https://github.com/eugeniogarcia/pachyderm/blob/master/data/personas/Personas3.txt
+
+
 

@@ -1,0 +1,17 @@
+# edades.json
+{
+  "pipeline": {
+    "name": "edades"
+  },
+  "description": "Pipeline que calcula las edades",
+  "transform": {
+    "cmd": [ "dotnet", "/app/clasifica.dll 1 /pfs/personas /pfs/out" ],
+    "image": "egsmartin/clasifica"
+  },
+  "input": {
+    "pfs": {
+      "repo": "personas",
+      "glob": "/*"
+    }
+  }
+}
