@@ -1,0 +1,17 @@
+# edades.json
+{
+  "pipeline": {
+    "name": "profesion-agrega"
+  },
+  "description": "Pipeline que calcula las profesiones y las agrega en un archivo",
+  "transform": {
+    "cmd": [ "dotnet", "/app/clasifica.dll","4","/pfs/edades","/pfs/out" ],
+    "image": "egsmartin/clasifica:latest"
+  },
+  "input": {
+    "pfs": {
+      "repo": "edades",
+      "glob": "/*"
+    }
+  }
+}

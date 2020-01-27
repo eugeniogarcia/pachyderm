@@ -1,0 +1,17 @@
+# edades.json
+{
+  "pipeline": {
+    "name": "profesion"
+  },
+  "description": "Pipeline que calcula las profesiones",
+  "transform": {
+    "cmd": [ "dotnet", "/app/clasifica.dll","3","/pfs/edades","/pfs/out" ],
+    "image": "egsmartin/clasifica:latest"
+  },
+  "input": {
+    "pfs": {
+      "repo": "edades",
+      "glob": "/*"
+    }
+  }
+}
