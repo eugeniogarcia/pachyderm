@@ -232,7 +232,7 @@ c51868eee26f: Pushed
 latest: digest: sha256:82dbe8c29d11c97bc44ab90ece3a5d29b1e07244ddd68e01addff75458f2bbbb size: 1373
 ```
 
-
+__IMPORTANT:__ Pachyderm does not have a feature to pull the images from the repository __`again`__. The intention is that each change in the image is tagged with a different version.
 
 ## Create the cluster
 
@@ -254,7 +254,12 @@ With the one time password as:
 otp/b10b8a9162e54018b090afea9afb17d6
 ```
 
+The cluster is created and the pachctl is configured with it.
+
 ## Upload the data
+
+We create our repo:
+
 ```sh
 pachctl create repo personas
 
@@ -264,11 +269,15 @@ NAME     CREATED        SIZE (MASTER) ACCESS LEVEL
 personas 11 seconds ago 0B            OWNER
 ```
 
+We upload the files. 
+
 ```sh
 pachctl put file personas@master:Personas1.txt -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/data/personas/Personas1.txt
 pachctl put file personas@master:Personas2.txt -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/data/personas/Personas2.txt
 pachctl put file personas@master:Personas3.txt -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/data/personas/Personas3.txt
 ```
+
+We can see now that the repo is updated:
 
 ```sh
 pachctl list repo
@@ -276,6 +285,8 @@ pachctl list repo
 NAME     CREATED        SIZE (MASTER) ACCESS LEVEL
 personas 49 seconds ago 190.8KiB      OWNER
 ```
+
+We can see the commits. In this case three commits, because we have not opened a commit before uploading each file - start commit, put, put, ..., put, end.
 
 ```sh
 pachctl list commit personas
@@ -286,11 +297,7 @@ personas master 0a280660e7244e24b8319559124b9cdf 24 seconds ago 127.2KiB -
 personas master 6072a48c189d4573b1a42526c9a8c712 34 seconds ago 63.59KiB -
 ```
 
-```sh
-pachctl put file personas@master:Personas1.txt -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/data/personas/Personas1.txt
-pachctl put file personas@master:Personas2.txt -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/data/personas/Personas2.txt
-pachctl put file personas@master:Personas3.txt -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/data/personas/Personas3.txt
-```
+We can see the files in the repo:
 
 ```sh
 pachctl list file personas@master
@@ -301,6 +308,8 @@ NAME           TYPE SIZE
 /Personas3.txt file 63.6KiB
 ```
 
+We can see the contents of a given file:
+
 ```sh
 pachctl get file personas@master:Personas1.txt
 
@@ -308,7 +317,9 @@ pachctl get file personas@master:Personas1.txt
 2;Vera Carmen;Zach;H;1973;M;Salzburg
 ```
 
-## Create the pipeline
+## Create the pipelines
+
+We create the pipelines:
 
 ```sh
 pachctl create pipeline -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/pipelines/edades.json
@@ -316,6 +327,8 @@ pachctl create pipeline -f https://raw.githubusercontent.com/eugeniogarcia/pachy
 pachctl create pipeline -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/pipelines/profesion.json
 pachctl create pipeline -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/pipelines/profesion-agrega.json
 ```
+
+As soon as they are created they start to process the data from the input repos. Each pipeline will create a repo for its output:
 
 ```sh
 pachctl list repo
@@ -328,6 +341,8 @@ edades           2 minutes ago      277B          OWNER        Output repo for p
 personas         3 minutes ago      260B          OWNER
 ```
 
+For example, these are the contents of the output for the edades pipeline:
+
 ```sh
 pachctl list file edades@master
 
@@ -337,12 +352,18 @@ NAME               TYPE SIZE
 /EdadPersonas3.txt file 90B
 ```
 
+Note that in the case of the edades pipeline, we have configured the `glob /*`. This means that each item in the root (file or directory; for example, if in the root we have file1, file2, dir1, and dir1 has file3 and file4, we have three datums: file1, file2 and dir1 - with the two files) is considered as one datum. In this case we have three datums.
+
+When we configure in the pipeline a `glob /`, we consider the whole repo as a datum, hence we have just one output:
+
 ```sh
 pachctl list file edades-agrega@master
 
 NAME                                TYPE SIZE
 /EdadPersonas637157472648055685.txt file 277B
 ```
+
+We can see the contents of the file:
 
 ```sh
 pachctl get file edades-agrega@master:EdadPersonas637157472648055685.txt
@@ -355,9 +376,8 @@ pachctl get file edades-agrega@master:EdadPersonas637157472648055685.txt
 6;Nicolas;Garcia Zach;V;2011;H;Torrelodones;8
 ```
 
-efecto /* y /
+If we want to delete the pipelines, we need to delete them in the order according to the dependencies of the pipelines:
 
-orden segun dependencias
 ```sh
 pachctl delete pipeline profesion-agrega
 pachctl delete pipeline edades-agrega
@@ -366,7 +386,9 @@ pachctl delete pipeline edades
 pachctl delete repo personas
 ```
 
-overwrite
+## Overwrite or append
+
+When we push - well put - a file again, its contents are appended. For example, lets put the file again:
 
 ```sh
 pachctl put file personas@master:Personas1.txt -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/data/personas/Personas1.txt
@@ -379,6 +401,8 @@ pachctl get file personas@master:Personas1.txt
 2;Vera Carmen;Zach;H;1973;M;Salzburgo
 ```
 
+We see that the contents of the file are "duplicated". If we want to replace the content of the file, we have to set `overwrite`:
+
 ```sh
 pachctl put file personas@master:Personas2.txt -o -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/data/personas/Personas2.txt
 
@@ -387,8 +411,8 @@ pachctl get file personas@master:Personas2.txt
 3;Eugenio;Garcia Zach;V;2004;H;Madrid
 4;Clara;Garcia Zach;H;2006;H;Torrelodones
 ```
- 
-significado de +, DL y UL
+
+Even if the contents of the file do not change, since it is a new commit, the datum will be processed again. Lets see the jobs:
 
 ```sh
 pachctl list repo
@@ -407,3 +431,95 @@ fe5e0275b5ca42be8032c3e96b62c05c profesion-agrega 2 minutes ago 3 seconds 0     
 f8e439820df14c54bc0aad8094f50bd0 edades-agrega    8 minutes ago 3 seconds 0       1 + 0 / 1 260B 277B success
 2a491e3d52ec4783bf91229b0a4d8eaf edades           8 minutes ago 5 seconds 0       3 + 0 / 3 260B 277B success
 ```
+
+- UL. Refers to the uploaded data amount. This is the data that the job uploads, or in other words, the size of the output
+- DL. Refers to the downloaded data amount. This is the data that the job downloads, or in other words, the size of the input datums
+- 0 + 3 /3. Means that out of the three datums available in the input, 0 were processed - have been commited - and 3 unchanged
+- 1 + 2 /3. Means that out of the three datums available in the input, 1 was processed - have been commited - and 2 unchanged
+
+We can look at the logs of a given job:
+
+```sh
+pachctl logs  --job ea5753c794a64133a87a64b999d3a12a
+```
+
+## Multiple Inputs
+
+In these two pipelines we are going to show the effect of `cross` and `union`:
+
+```sh
+pachctl create pipeline -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/pipelines/union.json
+pachctl create pipeline -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/pipelines/cross.json
+```
+
+### Cross
+
+```json
+{
+  "pipeline": {
+    "name": "cross"
+  },
+  "description": "Pipeline que muestra el efecto de usar cross",
+  "transform": {
+    "cmd": [ "dotnet", "/app/clasifica.dll","5","/pfs","/pfs/out" ],
+    "image": "egsmartin/clasifica:latest"
+  },
+  "input": {
+	"cross": [{
+		"pfs": {
+		  "repo": "edades",
+		  "glob": "/*"
+		  }
+		},
+		{
+		"pfs": {
+		  "repo": "profesion",
+		  "glob": "/*"
+		}
+	}]
+  }
+}
+```
+
+- In the repo edades we have three files, and in the repo profesion we also have three files
+- we are configuring `glob /*`. This means that we are considering each file as datum
+- It is a cross, so we will have 3 x 3 combinations, that is, nine datums
+- in each datum we are going to have a file in /pfs/edades/xxxx, __AND__ another in /pfs/profesion/yyyy, that is, on each datum we are seeing __at the same time__ one file from edades, and another from profesion
+
+__Note that in order for a datum to be processed has to correspond to a commit not previously processed.__
+
+### Union
+
+```json
+{
+  "pipeline": {
+    "name": "union"
+  },
+  "description": "Pipeline que muestra el efecto de usar union",
+  "transform": {
+    "cmd": [ "dotnet", "/app/clasifica.dll","5","/pfs","/pfs/out" ],
+    "image": "egsmartin/clasifica:latest"
+  },
+  "input": {
+	"union": [{
+		"pfs": {
+		  "repo": "edades",
+		  "glob": "/*"
+		  }
+		},
+		{
+		"pfs": {
+		  "repo": "profesion",
+		  "glob": "/*"
+		}
+	}]
+  }
+}
+```
+
+- In the repo edades we have three files, and in the repo profesion we also have three files
+- we are configuring `glob /*`. This means that we are considering each file as datum
+- It is a union, so we will have 3 + 3 combinations, that is, six datums
+- in each datum we are going to have one file in /pfs/edades/xxxx, __OR__ in /pfs/profesion/yyyy, that is, on each datum we are seeing either a file from edades or from profesion
+
+__Note that in order for a datum to be processed has to correspond to a commit not previously processed.__
