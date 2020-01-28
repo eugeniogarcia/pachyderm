@@ -11,7 +11,7 @@
 	"union": [{
 		"pfs": {
 		  "repo": "edades",
-		  "glob": "/*"
+		  "glob": "/"
 		  }
 		},
 		{

@@ -11,7 +11,7 @@
 	"cross": [{
 		"pfs": {
 		  "repo": "edades",
-		  "glob": "/*"
+		  "glob": "/"
 		  }
 		},
 		{
