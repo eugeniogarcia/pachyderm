@@ -1,0 +1,24 @@
+{
+  "pipeline": {
+    "name": "crossone"
+  },
+  "description": "Pipeline que muestra el efecto de usar cross con glob /",
+  "transform": {
+    "cmd": [ "dotnet", "/app/clasifica.dll","5","/pfs","/pfs/out" ],
+    "image": "egsmartin/clasifica:latest"
+  },
+  "input": {
+	"cross": [{
+		"pfs": {
+		  "repo": "edades",
+		  "glob": "/*"
+		  }
+		},
+		{
+		"pfs": {
+		  "repo": "profesion",
+		  "glob": "/"
+		}
+	}]
+  }
+}

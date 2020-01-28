@@ -1,0 +1,19 @@
+{
+  "pipeline": {
+    "name": "edadesparallel"
+  },
+  "description": "Pipeline que calcula las edades",
+  "transform": {
+    "cmd": [ "dotnet", "/app/clasifica.dll","1","/pfs/personas","/pfs/out" ],
+    "image": "egsmartin/clasifica:latest"
+  },
+  "parallelism_spec": {
+    "constant": 3
+  },
+  "input": {
+    "pfs": {
+      "repo": "personas",
+      "glob": "/*"
+    }
+  }
+}

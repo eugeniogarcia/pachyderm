@@ -523,3 +523,91 @@ __Note that in order for a datum to be processed has to correspond to a commit n
 - in each datum we are going to have one file in /pfs/edades/xxxx, __OR__ in /pfs/profesion/yyyy, that is, on each datum we are seeing either a file from edades or from profesion
 
 __Note that in order for a datum to be processed has to correspond to a commit not previously processed.__
+
+### Usando glob /
+
+When we use glob / it will consider the repo from the root as a single datum. This means that in the case of the union pipeline we would be dealing with two datums - one with the edades repo, one with the profesiones repo -, and in the case of the cross repo, one single datum where both repos, personas and edades, would be available for the pipeline.
+
+We have created an equivalent version of the pipeline that uses `glob /`. 
+
+```sh
+pachctl create pipeline -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/pipelines/unionone.json
+pachctl create pipeline -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/pipelines/crossone.json
+```
+
+Lets see the jobs:
+
+```sh
+pachctl list repo
+```
+
+Indeed we can see that the union pipeline job processed two datums, `2 + 0 / 2`, and the cross one just one `1 + 0 / 1`
+
+## Working in parallel
+
+### Commiting several files at a time
+
+```sh
+pachctl start commit personas@master
+
+pachctl put file personas@master:Personas11.txt -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/data/personas/Personas11.txt
+pachctl put file personas@master:Personas21.txt -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/data/personas/Personas21.txt
+pachctl put file personas@master:Personas31.txt -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/data/personas/Personas31.txt
+
+pachctl put file personas@master -r -f ./Downloads/data/personas/
+
+pachctl finish commit personas@master
+```
+
+```sh
+pachctl list commit personas
+```
+
+We can also use other protocols to handle files or directories, such as `s3://`, `gcs://`, and `as://`. 
+
+### Pipeline in parallel
+
+We have two strategies when dealing with parallelism, one is `coeficient`, the other is `constant`. 
+
+If you set the constant field, Pachyderm starts the number of workers that you specify. For example, set "constant":10 to use 10 workers. If you set the coefficient field, Pachyderm starts a number of workers that is a multiple of your Kubernetes cluster’s size. For example, if your Kubernetes cluster has 10 nodes, and you set "coefficient": 0.5, Pachyderm starts five workers. If you set it to 2.0, Pachyderm starts 20 workers (two per Kubernetes node).
+
+We have created a new pipeline using `constant` set to two:
+
+```json
+{
+  "pipeline": {
+    "name": "edadesparallel"
+  },
+  "description": "Pipeline que calcula las edades",
+  "transform": {
+    "cmd": [ "dotnet", "/app/clasifica.dll","1","/pfs/personas","/pfs/out" ],
+    "image": "egsmartin/clasifica:latest"
+  },
+  "parallelism_spec": {
+    "constant": 3
+  },
+  "input": {
+    "pfs": {
+      "repo": "personas",
+      "glob": "/*"
+    }
+  }
+}
+```
+
+```sh
+pachctl create pipeline -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/pipelines/edadesparallel.json
+```
+
+
+
+
+pachctl create pipeline -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/pipelines/unionone.json
+pachctl create pipeline -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/pipelines/crossone.json
+pachctl create pipeline -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/pipelines/edadesparallel.json
+
+pachctl start commit personas@master
+pachctl put file personas@master:Personas11.txt -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/data/personas/Personas11.txt
+pachctl put file personas@master:Personas21.txt -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/data/personas/Personas21.txt
+pachctl put file personas@master:Personas31.txt -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/data/personas/Personas31.txt
+pachctl finish commit personas@master
