@@ -415,7 +415,7 @@ pachctl get file personas@master:Personas2.txt
 Even if the contents of the file do not change, since it is a new commit, the datum will be processed again. Lets see the jobs:
 
 ```sh
-pachctl list repo
+pachctl list job
 
 ID                               PIPELINE         STARTED       DURATION  RESTART PROGRESS  DL   UL   STATE
 df610e990cc940568a5ae4bc4f44bea1 profesion        2 minutes ago 1 second  0       0 + 3 / 3 0B   0B   success
@@ -538,30 +538,121 @@ pachctl create pipeline -f https://raw.githubusercontent.com/eugeniogarcia/pachy
 Lets see the jobs:
 
 ```sh
-pachctl list repo
+pachctl list job
+
+ID                               PIPELINE         STARTED        DURATION  RESTART PROGRESS  DL   UL       STATE
+b2f80dfb5bdc42e3accb2f0c86c2af0c unionone         9 seconds ago  4 seconds 0       2 + 0 / 2 457B 563B     success
+c43a521c93f54d52837fe270aa9f5604 crossone         15 seconds ago 3 seconds 0       1 + 0 / 1 457B 442B     success
 ```
 
 Indeed we can see that the union pipeline job processed two datums, `2 + 0 / 2`, and the cross one just one `1 + 0 / 1`
 
 ## Working in parallel
 
-### Commiting several files at a time
+### Commiting several files in one commit
+
+In this ocasion we are going to create a commit with several files. Lets see the commits we have so far in personas repo:
+
+```sh
+pachctl list commit personas
+
+REPO     BRANCH COMMIT                           FINISHED       SIZE PROGRESS DESCRIPTION
+personas master ddbb6d0251454d4ca85f64550242c5d3 10 minutes ago 260B ????????
+personas master 6914ccfe1740437d9ca671fa27bd5d39 11 minutes ago 175B ????????
+personas master 43cae51c943b44509ec635ac662fda46 11 minutes ago 95B  ????????
+```
 
 ```sh
 pachctl start commit personas@master
 
-pachctl put file personas@master:Personas11.txt -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/data/personas/Personas11.txt
-pachctl put file personas@master:Personas21.txt -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/data/personas/Personas21.txt
-pachctl put file personas@master:Personas31.txt -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/data/personas/Personas31.txt
-
-pachctl put file personas@master -r -f ./Downloads/data/personas/
-
-pachctl finish commit personas@master
+d77a620fed08457dabfe445aea55a81f
 ```
+
+We can see that a new commit is started, but not yet closed:
 
 ```sh
 pachctl list commit personas
+
+REPO     BRANCH COMMIT                           FINISHED       SIZE PROGRESS DESCRIPTION
+personas master d77a620fed08457dabfe445aea55a81f 50 years ago   -    ????????
+personas master ddbb6d0251454d4ca85f64550242c5d3 11 minutes ago 260B ????????
+personas master 6914ccfe1740437d9ca671fa27bd5d39 12 minutes ago 175B ????????
+personas master 43cae51c943b44509ec635ac662fda46 12 minutes ago 95B  ????????
 ```
+
+Lets add a bunch of files:
+
+```sh
+pachctl put file personas@master:Personas11.txt -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/data/personas/Personas11.txt
+pachctl put file personas@master:Personas21.txt -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/data/personas/Personas21.txt
+pachctl put file personas@master:Personas31.txt -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/data/personas/Personas31.txt
+```
+
+We can also add all the files in a directory:
+
+```sh
+pachctl put file personas@master -r -f ./Downloads/data/personas/
+```
+
+Since we have not yet commited, we can see that no job has yet been triggered:
+
+```sh
+pachctl list job
+
+ID                               PIPELINE         STARTED        DURATION  RESTART PROGRESS  DL   UL       STATE
+b2f80dfb5bdc42e3accb2f0c86c2af0c unionone         5 minutes ago  4 seconds 0       2 + 0 / 2 457B 563B     success
+c43a521c93f54d52837fe270aa9f5604 crossone         5 minutes ago  3 seconds 0       1 + 0 / 1 457B 442B     success
+fdc1a2820e7947b5ae651a1fbfd48790 union            14 minutes ago 4 seconds 0       2 + 4 / 6 139B 383B     success
+c53a57e617224d27b340f57182c0c205 cross            14 minutes ago 8 seconds 0       5 + 4 / 9 735B 1.279KiB success
+0f8942a5bae140aa89cae421ebbc25b0 profesion        14 minutes ago 3 seconds 0       1 + 2 / 3 90B  49B      success
+```
+
+Lets now commit the repo:
+
+```sh
+pachctl finish commit personas@master
+```
+
+Now the jobs start to run:
+
+```sh
+pachctl list job
+
+ID                               PIPELINE         STARTED                DURATION  RESTART PROGRESS  DL   UL       STATE
+6fdb7de69f824a1998067fe1795b02bd profesion-agrega Less than a second ago -         0       0 + 0 / 0 0B   0B       starting
+76cbdfa38cd74d0ea82efe1338d4f30a profesion        1 second ago           -         0       0 + 0 / 0 0B   0B       starting
+a21fa650eb5c4cf8806a8b7cfd8c977e edades-agrega    6 seconds ago          2 seconds 0       1 + 0 / 1 786B 554B     success
+46648dc2f7b34e6eb04b3d549862e1b4 edades           6 seconds ago          5 seconds 0       4 + 3 / 7 526B 277B     success
+```
+
+Lets look at the commits in repo personas:
+
+```sh
+pachctl list commit personas
+
+REPO     BRANCH COMMIT                           FINISHED           SIZE PROGRESS DESCRIPTION
+personas master d77a620fed08457dabfe445aea55a81f About a minute ago 786B ????????
+personas master ddbb6d0251454d4ca85f64550242c5d3 17 minutes ago     260B ????????
+personas master 6914ccfe1740437d9ca671fa27bd5d39 17 minutes ago     175B ????????
+personas master 43cae51c943b44509ec635ac662fda46 18 minutes ago     95B  ????????
+```
+
+Now the commit is closed, and see that we have one commit for a bunch of files. Lets look at the repo contents:
+
+```sh
+pachctl list file personas@master
+
+NAME            TYPE SIZE
+/Downloads      dir  532B
+/Personas1.txt  file 95B
+/Personas11.txt file 95B
+/Personas2.txt  file 80B
+/Personas21.txt file 80B
+/Personas3.txt  file 85B
+/Personas31.txt file 85B
+```
+
+Note that we have the directory in the repo. 
 
 We can also use other protocols to handle files or directories, such as `s3://`, `gcs://`, and `as://`. 
 
@@ -584,6 +675,7 @@ We have created a new pipeline using `constant` set to two:
     "image": "egsmartin/clasifica:latest"
   },
   "parallelism_spec": {
+    "strategy": "CONSTANT",
     "constant": 3
   },
   "input": {
@@ -598,16 +690,3 @@ We have created a new pipeline using `constant` set to two:
 ```sh
 pachctl create pipeline -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/pipelines/edadesparallel.json
 ```
-
-
-
-
-pachctl create pipeline -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/pipelines/unionone.json
-pachctl create pipeline -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/pipelines/crossone.json
-pachctl create pipeline -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/pipelines/edadesparallel.json
-
-pachctl start commit personas@master
-pachctl put file personas@master:Personas11.txt -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/data/personas/Personas11.txt
-pachctl put file personas@master:Personas21.txt -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/data/personas/Personas21.txt
-pachctl put file personas@master:Personas31.txt -f https://raw.githubusercontent.com/eugeniogarcia/pachyderm/master/data/personas/Personas31.txt
-pachctl finish commit personas@master
