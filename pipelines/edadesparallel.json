@@ -2,7 +2,7 @@
   "pipeline": {
     "name": "edadesparallel"
   },
-  "description": "Pipeline que calcula las edades",
+  "description": "Pipeline que calcula las edades en paralelo",
   "transform": {
     "cmd": [ "dotnet", "/app/clasifica.dll","1","/pfs/personas","/pfs/out" ],
     "image": "egsmartin/clasifica:latest"
