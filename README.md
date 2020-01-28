@@ -675,8 +675,7 @@ We have created a new pipeline using `constant` set to two:
     "image": "egsmartin/clasifica:latest"
   },
   "parallelism_spec": {
-    "strategy": "CONSTANT",
-    "constant": 3
+    "constant": "3"
   },
   "input": {
     "pfs": {
